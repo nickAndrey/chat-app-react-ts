@@ -23,6 +23,7 @@ const LoginForm: FC<FormProps> = ({ fields, loginFormErrors, onSubmit, onFieldCh
 
   return (
     <form
+      aria-label="Login"
       className={formStyles()}
       onSubmit={(e) => {
         e.preventDefault();
