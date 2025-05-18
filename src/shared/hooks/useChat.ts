@@ -1,13 +1,17 @@
 import { useEffect, useRef, useState } from 'react';
+import type { ChatMessageDTO } from '../types/chatMessageDto';
 
 export function useChat() {
   const channelRef = useRef<BroadcastChannel | null>(null);
-  const [messages, setMessages] = useState<string[]>([]);
+  const [messages, setMessages] = useState<ChatMessageDTO[]>([]);
 
   const sendMessage = (msg: string) => {
     if (channelRef.current) {
       channelRef.current.postMessage(msg);
-      setMessages((prev) => [...prev, `You: ${msg}`]);
+      setMessages((prev) => [
+        ...prev,
+        { id: Date.now().toString(), senderId: 'You:', content: msg },
+      ]);
     }
   };
 
@@ -16,7 +20,10 @@ export function useChat() {
     channelRef.current = channel;
 
     channel.onmessage = (e) => {
-      setMessages((prev) => [...prev, `Other: ${e.data}`]);
+      setMessages((prev) => [
+        ...prev,
+        { id: Date.now().toString(), senderId: 'Other:', content: e.data },
+      ]);
     };
 
     return () => {
