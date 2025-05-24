@@ -1,34 +1,37 @@
 import useAuth from '@/app/contexts/auth/useAuth';
+import type { User } from '@/shared/types/user';
 import { handleError } from '@/shared/utils/handle-error';
-import { useState } from 'react';
-import type { Form } from '../types/form';
+import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router';
 
 const useLoginForm = () => {
-  const [loginForm, setLoginForm] = useState<Form>({
-    name: '',
+  const navigate = useNavigate();
+
+  const [fields, setFields] = useState<Pick<User, 'email' | 'password'>>({
     email: '',
     password: '',
   });
-  const [loginFormErrors, setLoginFormErrors] = useState<Partial<Form>>({});
+
+  const [loginFormErrors, setLoginFormErrors] = useState<Partial<typeof fields>>({});
   const [apiError, setApiError] = useState('');
 
-  const { login } = useAuth();
+  const { isLoggedIn, login } = useAuth();
+
+  useEffect(() => {
+    if (isLoggedIn) navigate('/');
+  }, [isLoggedIn, navigate]);
 
   /**
    * Validation
    **/
   const onValidate = () => {
-    const errors: Partial<Form> = {};
+    const errors: Partial<User> = {};
 
-    if (!loginForm.name) {
-      errors.name = 'Name is required';
-    }
-
-    if (!loginForm.email) {
+    if (!fields.email) {
       errors.email = 'Email is required';
     }
 
-    if (!loginForm.password) {
+    if (!fields.password) {
       errors.password = 'Password is required';
     }
 
@@ -45,7 +48,7 @@ const useLoginForm = () => {
     if (!isFormValid) return;
 
     try {
-      await login(loginForm);
+      await login(fields);
     } catch (err) {
       const { message } = handleError(err);
       setApiError(message);
@@ -54,15 +57,17 @@ const useLoginForm = () => {
   };
 
   const onFieldChange = (field: string, value: string) => {
-    setLoginForm((prev) => ({ ...prev, [field]: value }));
+    setFields((prev) => ({ ...prev, [field]: value }));
   };
 
   return {
-    loginForm,
-    loginFormErrors,
+    form: {
+      fields,
+      loginFormErrors,
+      onSubmit,
+      onFieldChange,
+    },
     apiError,
-    onSubmit,
-    onFieldChange,
   };
 };
 

@@ -2,7 +2,7 @@ import { type FC } from 'react';
 import { tv } from 'tailwind-variants';
 import type useSignUp from '../hooks/useSignUp';
 
-type FormProps = ReturnType<typeof useSignUp> & {};
+type FormProps = ReturnType<typeof useSignUp>['form'] & {};
 
 const SignUpForm: FC<FormProps> = ({ fields, errors, onFormSubmit, onFieldChange }) => {
   const loginStyles = tv({
@@ -30,12 +30,12 @@ const SignUpForm: FC<FormProps> = ({ fields, errors, onFormSubmit, onFieldChange
 
       <input
         type="text"
-        className={`${inputStyles()} ${errors?.name ? 'border border-red-500' : ''}`}
-        placeholder="Name"
-        value={fields.name}
-        onChange={(e) => onFieldChange('name', e.target.value)}
+        className={`${inputStyles()} ${errors?.username ? 'border border-red-500' : ''}`}
+        placeholder="Username"
+        value={fields.username}
+        onChange={(e) => onFieldChange('username', e.target.value)}
       />
-      {errors && <span className="text-red-500 text-xs">{errors?.name}</span>}
+      {errors && <span className="text-red-500 text-xs">{errors?.username}</span>}
 
       <input
         type="email"

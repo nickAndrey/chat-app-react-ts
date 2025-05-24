@@ -1,24 +1,31 @@
-import { useState } from 'react';
+import useAuth from '@/app/contexts/auth/useAuth';
+import type { User } from '@/shared/types/user';
+import { handleError } from '@/shared/utils/handle-error';
+import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router';
 
 const useSignUp = () => {
-  // fields: Form;
-  //   loginFormErrors?: Partial<Form>;
-  //   onSubmit: () => void;
-  //   onFieldChange: (field: string, value: string) => void;
+  const { isLoggedIn, signUp } = useAuth();
+  const navigate = useNavigate();
 
-  const [fields, setFields] = useState({
-    name: '',
+  const [fields, setFields] = useState<Omit<User, 'id'>>({
+    username: '',
     email: '',
     password: '',
   });
 
   const [errors, setErrors] = useState<Partial<typeof fields>>({});
+  const [apiError, setApiError] = useState('');
+
+  useEffect(() => {
+    if (isLoggedIn) navigate('/');
+  }, [isLoggedIn, navigate]);
 
   const validateFields = () => {
     const errors: Record<string, string> = {};
 
-    if (!fields.name) {
-      errors.name = 'Name is required';
+    if (!fields.username) {
+      errors.username = 'Name is required';
     }
 
     if (!fields.email) {
@@ -33,11 +40,15 @@ const useSignUp = () => {
     return Object.keys(errors).length === 0;
   };
 
-  const onFormSubmit = () => {
+  const onFormSubmit = async () => {
     const isFormValid = validateFields();
+    if (!isFormValid) return;
 
-    if (isFormValid) {
-      console.log(fields);
+    try {
+      await signUp(fields);
+    } catch (err) {
+      const { message } = handleError(err);
+      setApiError(message);
     }
   };
 
@@ -46,10 +57,13 @@ const useSignUp = () => {
   };
 
   return {
-    fields,
-    errors,
-    onFormSubmit,
-    onFieldChange,
+    form: {
+      fields,
+      errors,
+      onFormSubmit,
+      onFieldChange,
+    },
+    apiError,
   };
 };
 

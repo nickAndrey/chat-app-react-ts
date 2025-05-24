@@ -1,13 +1,8 @@
 import { type FC } from 'react';
 import { tv } from 'tailwind-variants';
-import type { Form } from '../types/form';
+import type useLoginForm from '../hooks/useLoginForm';
 
-type FormProps = {
-  fields: Form;
-  loginFormErrors?: Partial<Form>;
-  onSubmit: () => void;
-  onFieldChange: (field: string, value: string) => void;
-};
+type FormProps = ReturnType<typeof useLoginForm>['form'] & {};
 
 const LoginForm: FC<FormProps> = ({ fields, loginFormErrors, onSubmit, onFieldChange }) => {
   const loginStyles = tv({
@@ -32,15 +27,6 @@ const LoginForm: FC<FormProps> = ({ fields, loginFormErrors, onSubmit, onFieldCh
       noValidate
     >
       <h4 className={titleStyles()}>Login</h4>
-
-      <input
-        type="text"
-        className={`${inputStyles()} ${loginFormErrors?.name ? 'border border-red-500' : ''}`}
-        placeholder="Name"
-        value={fields.name}
-        onChange={(e) => onFieldChange('name', e.target.value)}
-      />
-      {loginFormErrors && <span className="text-red-500 text-xs">{loginFormErrors?.name}</span>}
 
       <input
         type="email"

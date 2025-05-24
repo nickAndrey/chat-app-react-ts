@@ -1,11 +1,12 @@
-import { type FC, type ReactNode } from 'react';
+import { type FC } from 'react';
+import { Outlet } from 'react-router';
 
-type LoginLayoutProps = {
-  children: ReactNode;
-};
-
-const LoginLayout: FC<LoginLayoutProps> = ({ children }) => {
-  return <div className="flex justify-center items-center w-full h-screen">{children}</div>;
+const LoginLayout: FC = () => {
+  return (
+    <div className="flex flex-col justify-center items-center w-full h-screen">
+      <Outlet />
+    </div>
+  );
 };
 
 export default LoginLayout;
