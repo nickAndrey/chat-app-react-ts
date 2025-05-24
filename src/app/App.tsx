@@ -3,8 +3,8 @@ import { Login } from '@/views/login';
 import { type FC } from 'react';
 import useAuth from './contexts/auth/useAuth';
 import Layout from './layout/Layout';
-import Loader from './layout/PageLoader';
 import LoginLayout from './layout/LoginLayout';
+import Loader from './layout/PageLoader';
 
 const App: FC = () => {
   const { isLoggedIn, isLoading } = useAuth();

@@ -1,15 +1,10 @@
 import { type FC } from 'react';
 import { tv } from 'tailwind-variants';
-import type { Form } from '../types/form';
+import type useSignUp from '../hooks/useSignUp';
 
-type FormProps = {
-  fields: Form;
-  loginFormErrors?: Partial<Form>;
-  onSubmit: () => void;
-  onFieldChange: (field: string, value: string) => void;
-};
+type FormProps = ReturnType<typeof useSignUp> & {};
 
-const LoginForm: FC<FormProps> = ({ fields, loginFormErrors, onSubmit, onFieldChange }) => {
+const SignUpForm: FC<FormProps> = ({ fields, errors, onFormSubmit, onFieldChange }) => {
   const loginStyles = tv({
     slots: {
       formStyles: `bg-gray-50 rounded-md px-4 py-8 flex flex-col gap-3 shadow-md shadow-gray-300`,
@@ -23,48 +18,48 @@ const LoginForm: FC<FormProps> = ({ fields, loginFormErrors, onSubmit, onFieldCh
 
   return (
     <form
-      aria-label="Login"
+      aria-label="Signup"
       className={formStyles()}
       onSubmit={(e) => {
         e.preventDefault();
-        onSubmit();
+        onFormSubmit();
       }}
       noValidate
     >
-      <h4 className={titleStyles()}>Login</h4>
+      <h4 className={titleStyles()}>Sign Up</h4>
 
       <input
         type="text"
-        className={`${inputStyles()} ${loginFormErrors?.name ? 'border border-red-500' : ''}`}
+        className={`${inputStyles()} ${errors?.name ? 'border border-red-500' : ''}`}
         placeholder="Name"
         value={fields.name}
         onChange={(e) => onFieldChange('name', e.target.value)}
       />
-      {loginFormErrors && <span className="text-red-500 text-xs">{loginFormErrors?.name}</span>}
+      {errors && <span className="text-red-500 text-xs">{errors?.name}</span>}
 
       <input
         type="email"
-        className={`${inputStyles()} ${loginFormErrors?.email ? 'border border-red-500' : ''}`}
+        className={`${inputStyles()} ${errors?.email ? 'border border-red-500' : ''}`}
         placeholder="Email"
         value={fields.email}
         onChange={(e) => onFieldChange('email', e.target.value)}
         autoComplete="username"
       />
-      {loginFormErrors && <span className="text-red-500 text-xs">{loginFormErrors?.email}</span>}
+      {errors && <span className="text-red-500 text-xs">{errors?.email}</span>}
 
       <input
         type="password"
-        className={`${inputStyles()} ${loginFormErrors?.password ? 'border border-red-500' : ''}`}
+        className={`${inputStyles()} ${errors?.password ? 'border border-red-500' : ''}`}
         placeholder="Password"
         value={fields.password}
         onChange={(e) => onFieldChange('password', e.target.value)}
         autoComplete="current-password"
       />
-      {loginFormErrors && <span className="text-red-500 text-xs">{loginFormErrors?.password}</span>}
+      {errors && <span className="text-red-500 text-xs">{errors?.password}</span>}
 
-      <button className={buttonStyles()}>Sign in</button>
+      <button className={buttonStyles()}>Register</button>
     </form>
   );
 };
 
-export default LoginForm;
+export default SignUpForm;

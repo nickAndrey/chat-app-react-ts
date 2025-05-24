@@ -19,6 +19,8 @@ const Login: FC = () => {
         fields={loginForm}
         loginFormErrors={loginFormErrors}
       />
+
+      <p>Register new user</p>
     </div>
   );
 };

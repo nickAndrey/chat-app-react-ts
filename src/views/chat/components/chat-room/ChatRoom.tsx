@@ -3,12 +3,12 @@ import { useState, type FC } from 'react';
 import { MessageCloud } from '../message-cloud';
 import { MessageInput } from '../message-input';
 
-type ChatAreaProps = {
+type ChatRoomProps = {
   messages: ChatMessageDTO[];
   sendMessage: (msg: string) => void;
 };
 
-const ChatArea: FC<ChatAreaProps> = ({ messages, sendMessage }) => {
+const ChatRoom: FC<ChatRoomProps> = ({ messages, sendMessage }) => {
   const [currentMessage, setCurrentMessage] = useState('');
 
   return (
@@ -28,4 +28,4 @@ const ChatArea: FC<ChatAreaProps> = ({ messages, sendMessage }) => {
   );
 };
 
-export default ChatArea;
+export default ChatRoom;
