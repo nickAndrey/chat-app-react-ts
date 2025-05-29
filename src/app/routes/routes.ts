@@ -1,4 +1,5 @@
 import { Chat } from '@/views/chat';
+import { ChatRoom } from '@/views/chat-room';
 import { Login } from '@/views/login';
 import { SignUp } from '@/views/sign-up';
 import { createBrowserRouter } from 'react-router';
@@ -13,6 +14,16 @@ export const routes = createBrowserRouter([
       {
         index: true,
         Component: Chat,
+      },
+      {
+        path: '/:id',
+        Component: Chat,
+        children: [
+          {
+            index: true,
+            Component: ChatRoom,
+          },
+        ],
       },
     ],
   },

@@ -1,11 +1,11 @@
-import type { User } from '@/shared/types/user';
+import type { PublicUser, User } from '@/shared/types/user';
 import { createError } from '@/shared/utils/create-error';
 import { createContext, useEffect, useState, type FC, type ReactNode } from 'react';
 
 type AuthContextProps = {
   isLoggedIn: boolean;
   isLoading: boolean;
-  user: Omit<User, 'password'> | null;
+  user: PublicUser | null;
   login: (user: Pick<User, 'email' | 'password'>) => Promise<void>;
   signUp: (user: Omit<User, 'id'>) => Promise<void>;
 };
@@ -17,7 +17,7 @@ type AuthContextProviderProps = {
 };
 
 export const AuthContextProvider: FC<AuthContextProviderProps> = ({ children }) => {
-  const [user, setUser] = useState<Omit<User, 'password'> | null>(null);
+  const [user, setUser] = useState<PublicUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   /**
@@ -40,9 +40,18 @@ export const AuthContextProvider: FC<AuthContextProviderProps> = ({ children }) 
       const { data } = await response.json();
       setIsLoading(false);
 
-      if (!response.ok) throw createError(data.msg, { cause: data });
+      if (response.status === 401) {
+        setUser(null);
+        setIsLoading(false);
+        localStorage.removeItem('accessToken');
+        return;
+      }
 
-      const { user, accessToken } = data as { user: Omit<User, 'password'>; accessToken: string };
+      if (!response.ok) {
+        throw createError(data?.msg || 'Unknown error during refresh', { cause: data });
+      }
+
+      const { user, accessToken } = data as { user: PublicUser; accessToken: string };
 
       setUser(user);
       localStorage.setItem('accessToken', accessToken);
@@ -71,7 +80,7 @@ export const AuthContextProvider: FC<AuthContextProviderProps> = ({ children }) 
 
     if (!response.ok) throw createError(error.msg, { cause: error });
 
-    const { user, accessToken } = data as { user: Omit<User, 'password'>; accessToken: string };
+    const { user, accessToken } = data as { user: PublicUser; accessToken: string };
 
     setUser(user);
     localStorage.setItem('accessToken', accessToken);
@@ -93,7 +102,7 @@ export const AuthContextProvider: FC<AuthContextProviderProps> = ({ children }) 
 
     if (!response.ok) throw createError(error.msg, { cause: error });
 
-    const { user, accessToken } = data as { user: Omit<User, 'password'>; accessToken: string };
+    const { user, accessToken } = data as { user: PublicUser; accessToken: string };
 
     setUser(user);
     localStorage.setItem('accessToken', accessToken);
