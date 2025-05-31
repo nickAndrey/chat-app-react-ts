@@ -3,11 +3,7 @@ import AuthContext from './AuthContext';
 
 const useAuth = () => {
   const context = useContext(AuthContext);
-
-  if (!context) {
-    throw new Error('useAuth have to be used within AuthContext');
-  }
-
+  if (!context) throw new Error('useAuth have to be used within AuthContext');
   return context;
 };
 

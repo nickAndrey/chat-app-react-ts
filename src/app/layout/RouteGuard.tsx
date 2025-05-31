@@ -11,7 +11,7 @@ const RouteGuard: FC = () => {
   if (isLoading) return <PageLoader />;
 
   if (!isLoggedIn && !/\/login|\/sign-up/.test(location.pathname)) {
-    return <Navigate to="/login" />;
+    return <Navigate to="/auth/login" />;
   }
 
   return <AppLayout />;

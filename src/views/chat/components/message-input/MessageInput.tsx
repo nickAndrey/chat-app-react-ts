@@ -1,3 +1,4 @@
+import { TextField } from '@mui/material';
 import { useEffect, useRef, type ChangeEvent, type FC, type KeyboardEvent } from 'react';
 
 type MessageInputProps = {
@@ -11,7 +12,7 @@ const MessageInput: FC<MessageInputProps> = ({
   setCurrentMessage,
   sendMessage,
 }) => {
-  const inputRef = useRef<HTMLTextAreaElement | null>(null);
+  const inputRef = useRef<HTMLDivElement | null>(null);
 
   // Auto-resize height when message changes
   useEffect(() => {
@@ -21,7 +22,7 @@ const MessageInput: FC<MessageInputProps> = ({
     }
   }, [currentMessage]);
 
-  const onKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
+  const onKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
     if (e.key === 'Enter') {
       if (e.shiftKey) {
         return; // Allow new line.
@@ -41,11 +42,11 @@ const MessageInput: FC<MessageInputProps> = ({
   };
 
   return (
-    <textarea
+    <TextField
+      aria-label="chat message input"
       ref={inputRef}
-      className="border border-gray-400 rounded-md px-4 py-2 w-full resize-none overflow-hidden min-h-[40px]"
-      placeholder="Type message"
-      rows={1}
+      minRows={1}
+      placeholder="Write a message..."
       value={currentMessage}
       onKeyDown={onKeyDown}
       onChange={onChange}

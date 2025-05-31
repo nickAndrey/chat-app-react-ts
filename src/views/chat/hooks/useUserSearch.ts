@@ -7,6 +7,7 @@ import { useEffect, useState } from 'react';
 const useUserSearch = () => {
   const [usersList, setUsersList] = useState<PublicUser[]>([]);
   const [searchValue, setSearchValue] = useState<string | null>(null);
+  const [selectedUser, setSelectedUser] = useState<PublicUser | null>(null);
 
   const searchValueDebounced = useDebounce(searchValue, 300);
 
@@ -39,6 +40,8 @@ const useUserSearch = () => {
   return {
     usersList,
     searchValue,
+    selectedUser,
+    setSelectedUser,
     setSearchValue,
   };
 };

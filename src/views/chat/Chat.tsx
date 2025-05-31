@@ -1,78 +1,75 @@
 import useAuth from '@/app/contexts/auth/useAuth';
 import { DropdownWithSearch } from '@/shared/components/dropdown-with-search';
-import type { PublicUser } from '@/shared/types/user';
-import { useState, type FC } from 'react';
-import { Outlet } from 'react-router';
+import { Box } from '@mui/material';
+import { type FC } from 'react';
 import { AvailableRooms } from './components/available-rooms';
-import useCreateRoom from './hooks/useCreateRoom';
-import useGetAllRoomsByUser from './hooks/useGetAllRoomsByUser';
-import useUserSearch from './hooks/useUserSearch';
+import { MessageInput } from './components/message-input';
+import { Messages } from './components/messages';
+import useChat from './hooks/useChat';
+
+const CHAT_HEIGHT = '80vh';
 
 const Chat: FC = () => {
-  /**
-   *
-   *
-   * 1. search over users
-   * 2. select user
-   * 3. create a room based on selected and logged in user
-   * 4. add created room to the available rooms list
-   * 5. last created room became active one
-   * 6. show the chat for the active room
-   * 7. fetch messages for the room chat
-   * 8. now you can send messages to the chat participant
-   *
-   *
-   *
-   */
-
-  /**
-   * 1. hook to manage searching over users
-   *
-   * states:
-   * - searchValue, setSearchValue
-   * - usersList, setUsersList
-   *
-   * 2. hook to manage creating a rooms
-   * - rooms, setRooms
-   *
-   * 3. Populate rooms list with new room
-   * 4. make that room active
-   * 5. show the chat view for active room
-   * 6. fetch messages
-   *
-   */
-
   const { user } = useAuth();
-
-  const [selectedUser, setSelectedUser] = useState<PublicUser | null>(null);
-
-  const { rooms } = useGetAllRoomsByUser({ userID: user?.id });
-  const { setSearchValue, searchValue, usersList } = useUserSearch();
-  const { room } = useCreateRoom({ user, selectedUser });
-
-  console.log({ room });
+  const { rooms, messagesProps, userSearchProps } = useChat({ user });
 
   return (
-    <div className="grid grid-cols-[auto_1fr] w-full max-w-[800px] max-h-[75vh] h-full bg-gray-100 shadow-md shadow-gray-400 rounded-md p-4">
-      <div>
+    <Box
+      sx={{
+        display: 'grid',
+        gridTemplateColumns: 'auto 1fr',
+        height: CHAT_HEIGHT,
+        width: '100%',
+      }}
+    >
+      <Box
+        component="aside"
+        sx={{
+          display: 'grid',
+          gridTemplateRows: 'auto 1fr',
+          maxHeight: CHAT_HEIGHT,
+          backgroundColor: '#283e4a',
+          px: 2,
+          pt: 4,
+        }}
+      >
         <DropdownWithSearch
-          closeOnSelect
-          items={usersList}
-          searchValue={searchValue || ''}
-          setSearchValue={setSearchValue}
-          onSelectItem={(item) => setSelectedUser(item)}
-          renderOption={(item) => (
-            <div className="px-4 py-2 hover:bg-gray-200 transition-colors">
-              <h4>{item.username}</h4>
-              <i>{item.email}</i>
-            </div>
-          )}
+          searchInputProps={{
+            searchValue: userSearchProps.searchValue || '',
+            setSearchValue: userSearchProps.setSearchValue,
+          }}
+          dropdownProps={{
+            items: userSearchProps.usersList,
+            selectedItem: userSearchProps.selectedUser,
+            onSelectItem: userSearchProps.handleRoomCreate,
+            renderOption: (item) => (
+              <div>
+                <h4>{item.username}</h4>
+                <i>{item.email}</i>
+              </div>
+            ),
+          }}
         />
-        <AvailableRooms rooms={rooms} />
-      </div>
 
-      <Outlet />
-    </div>
+        <AvailableRooms rooms={rooms} />
+      </Box>
+
+      <Box
+        sx={{
+          bgcolor: 'white',
+          display: 'grid',
+          gridTemplateRows: '1fr auto',
+          maxHeight: CHAT_HEIGHT,
+        }}
+      >
+        <Messages messages={messagesProps.messages} userId={user.id} />
+        <MessageInput
+          currentMessage={messagesProps.currentMessage}
+          setCurrentMessage={messagesProps.setCurrentMessage}
+          sendMessage={messagesProps.sendMessage}
+        />
+      </Box>
+    </Box>
   );
 };
 

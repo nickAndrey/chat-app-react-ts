@@ -2,12 +2,12 @@ import type { Message } from '../types/message';
 import { createError } from '../utils/create-error';
 
 type Args = {
-  roomID: string;
+  roomId: string;
   options?: { signal: AbortSignal };
 };
 
-export async function roomsGetAllMessagesById({ roomID, options }: Args) {
-  const url = `${import.meta.env.VITE_API_URL}/rooms/${roomID}/messages`;
+export async function roomsGetAllMessagesById({ roomId, options }: Args) {
+  const url = `${import.meta.env.VITE_API_URL}/rooms/${roomId}/messages`;
 
   const response = await fetch(url, {
     method: 'GET',

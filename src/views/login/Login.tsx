@@ -16,7 +16,7 @@ const Login: FC = () => {
 
       <LoginForm {...form} />
 
-      <NavLink to="/sign-up" className="hover:underline self-start">
+      <NavLink to="/auth/sign-up" className="hover:underline self-start">
         Create new user
       </NavLink>
     </div>

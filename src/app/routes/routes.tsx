@@ -1,9 +1,8 @@
 import { Chat } from '@/views/chat';
-import { ChatRoom } from '@/views/chat-room';
 import { Login } from '@/views/login';
 import { SignUp } from '@/views/sign-up';
 import { createBrowserRouter } from 'react-router';
-import LoginLayout from '../layout/LoginLayout';
+import AuthLayout from '../layout/AuthLayout';
 import RouteGuard from '../layout/RouteGuard';
 
 export const routes = createBrowserRouter([
@@ -16,29 +15,17 @@ export const routes = createBrowserRouter([
         Component: Chat,
       },
       {
-        path: '/:id',
+        path: ':roomId?',
         Component: Chat,
-        children: [
-          {
-            index: true,
-            Component: ChatRoom,
-          },
-        ],
       },
     ],
   },
   {
-    path: '/',
-    Component: LoginLayout,
+    path: '/auth',
+    Component: AuthLayout,
     children: [
-      {
-        path: '/login',
-        Component: Login,
-      },
-      {
-        path: '/sign-up',
-        Component: SignUp,
-      },
+      { path: 'login', Component: Login },
+      { path: 'sign-up', Component: SignUp },
     ],
   },
 ]);

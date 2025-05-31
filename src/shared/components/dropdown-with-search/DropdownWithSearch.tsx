@@ -1,80 +1,58 @@
-import { useClickAway } from '@uidotdev/usehooks';
-import { useState, type ReactNode } from 'react';
-import { tv } from 'tailwind-variants';
+import { Autocomplete, Box, TextField } from '@mui/material';
 
-const styles = tv({
-  slots: {
-    container: 'relative w-full',
-    dropdown: 'absolute top-full mt-1 left-0 bg-white w-full rounded-sm z-10',
-    dropdownItem: 'cursor-pointer',
-    searchInput: 'border border-gray-300 rounded-md px-4 py-2 w-full',
-  },
-  variants: {
-    open: {
-      true: { dropdown: 'block' },
-      false: { dropdown: 'hidden' },
-    },
-  },
-});
+import { type ReactNode } from 'react';
 
 type Item<T> = { id: string } & T;
 
 type DropdownWithSearchProps<T> = {
-  items: Item<T>[];
-  searchValue: string;
-  closeOnSelect?: boolean;
-  setSearchValue: (value: string) => void;
-  onSelectItem?: (item: Item<T>) => void;
-  renderOption?: (item: Item<T>) => ReactNode;
+  dropdownProps: {
+    items: Item<T>[];
+    selectedItem: Item<T> | null;
+    onSelectItem: (item: Item<T> | null) => void;
+    renderOption: (item: Item<T>) => ReactNode;
+  };
+  searchInputProps: {
+    searchValue: string;
+    setSearchValue: (value: string) => void;
+  };
 };
 
-function DropdownWithSearch<T>({
-  items,
-  searchValue,
-  closeOnSelect,
-  setSearchValue,
-  onSelectItem,
-  renderOption,
-}: DropdownWithSearchProps<T>) {
-  const [dropdownOpen, setDropdownOpen] = useState(false);
-
-  const containerRef = useClickAway<HTMLDivElement>(() => setDropdownOpen(false));
-
-  const { container, dropdown, dropdownItem, searchInput } = styles({ open: dropdownOpen });
-
+function DropdownWithSearch<T>({ dropdownProps, searchInputProps }: DropdownWithSearchProps<T>) {
   return (
-    <div ref={containerRef} className={container()}>
-      <input
-        type="text"
-        className={searchInput()}
-        placeholder="Search..."
-        value={searchValue}
-        onChange={(e) => setSearchValue(e.target.value)}
-        onFocus={() => setDropdownOpen(true)}
-      />
-
-      <ul className={dropdown()} role="listbox" aria-expanded="true">
-        {items &&
-          items.map((item) => (
-            <li
-              key={item.id}
-              className={dropdownItem()}
-              role="option"
-              tabIndex={0}
-              onClick={() => {
-                if (closeOnSelect) {
-                  setDropdownOpen(false);
-                }
-
-                onSelectItem?.(item);
-              }}
-              onKeyDown={({ key }) => key === 'Enter' && onSelectItem?.(item)}
-            >
-              {renderOption?.(item) || 'No renderer'}
-            </li>
-          ))}
-      </ul>
-    </div>
+    <Autocomplete
+      sx={{
+        width: '200px',
+        backgroundColor: '#142831',
+        svg: { color: 'white' },
+      }}
+      size="small"
+      getOptionLabel={(x) => x['username' as keyof Item<T>] as string}
+      isOptionEqualToValue={(option, value) => option.id === value.id}
+      filterOptions={(x) => x}
+      options={dropdownProps.items}
+      value={dropdownProps.selectedItem}
+      onChange={(_, newValue) => dropdownProps.onSelectItem(newValue)}
+      inputValue={searchInputProps.searchValue}
+      onInputChange={(_, newInputValue) => searchInputProps.setSearchValue(newInputValue)}
+      renderInput={(params) => (
+        <TextField
+          {...params}
+          placeholder="Search..."
+          variant="outlined"
+          sx={{
+            input: { color: 'white' },
+          }}
+        />
+      )}
+      renderOption={(props, option) => {
+        const { key, ...optionProps } = props;
+        return (
+          <Box key={key} component="li" {...optionProps}>
+            {dropdownProps.renderOption(option)}
+          </Box>
+        );
+      }}
+    />
   );
 }
 
