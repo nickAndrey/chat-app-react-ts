@@ -14,12 +14,13 @@ const MessageCloud: FC<MessageCloudProps> = ({ message, isCurrentUserSender }) =
         px: 1,
         py: 0.7,
         bgcolor: grey['400'],
-        maxWidth: '500px',
+        maxWidth: '250px',
         width: 'max-content',
         borderRadius: '16px',
         ml: isCurrentUserSender ? 'auto' : '',
         wordBreak: 'break-word',
         overflowWrap: 'anywhere',
+        whiteSpace: 'pre-wrap',
       }}
     >
       <Typography variant="body2">{message}</Typography>

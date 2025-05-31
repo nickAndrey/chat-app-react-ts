@@ -5,7 +5,7 @@ import { createContext, useEffect, useState, type FC, type ReactNode } from 'rea
 type AuthContextProps = {
   isLoggedIn: boolean;
   isLoading: boolean;
-  user: PublicUser;
+  user: PublicUser | null;
   login: (user: Pick<User, 'email' | 'password'>) => Promise<void>;
   signUp: (user: Omit<User, 'id'>) => Promise<void>;
 };
@@ -113,11 +113,7 @@ export const AuthContextProvider: FC<AuthContextProviderProps> = ({ children }) 
       value={{
         isLoggedIn: !!user,
         isLoading,
-        user: (() => {
-          if (isLoading) return {} as PublicUser;
-          if (!user) throw new Error('User is not available but marked as logged in');
-          return user;
-        })(),
+        user,
         login,
         signUp,
       }}

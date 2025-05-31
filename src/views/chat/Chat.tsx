@@ -1,4 +1,4 @@
-import useAuth from '@/app/contexts/auth/useAuth';
+import useAuthenticatedUser from '@/app/contexts/auth/useAuthenticatedUser';
 import { DropdownWithSearch } from '@/shared/components/dropdown-with-search';
 import { Box } from '@mui/material';
 import { type FC } from 'react';
@@ -10,7 +10,7 @@ import useChat from './hooks/useChat';
 const CHAT_HEIGHT = '80vh';
 
 const Chat: FC = () => {
-  const { user } = useAuth();
+  const user = useAuthenticatedUser();
   const { rooms, messagesProps, userSearchProps } = useChat({ user });
 
   return (
