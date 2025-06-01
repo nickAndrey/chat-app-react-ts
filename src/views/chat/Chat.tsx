@@ -1,6 +1,8 @@
 import useAuthenticatedUser from '@/app/contexts/auth/useAuthenticatedUser';
 import { DropdownWithSearch } from '@/shared/components/dropdown-with-search';
-import { Box } from '@mui/material';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
+import { Box, IconButton } from '@mui/material';
+import { grey } from '@mui/material/colors';
 import { type FC } from 'react';
 import { AvailableRooms } from './components/available-rooms';
 import { MessageInput } from './components/message-input';
@@ -11,6 +13,7 @@ const CHAT_HEIGHT = '80vh';
 
 const Chat: FC = () => {
   const user = useAuthenticatedUser();
+
   const { rooms, messagesProps, userSearchProps } = useChat({ user });
 
   return (
@@ -20,6 +23,7 @@ const Chat: FC = () => {
         gridTemplateColumns: 'auto 1fr',
         height: CHAT_HEIGHT,
         width: '100%',
+        borderRadius: '16px',
       }}
     >
       <Box
@@ -58,16 +62,40 @@ const Chat: FC = () => {
         sx={{
           bgcolor: 'white',
           display: 'grid',
-          gridTemplateRows: '1fr auto',
+          gridTemplateRows: 'auto 1fr auto',
           maxHeight: CHAT_HEIGHT,
         }}
       >
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            gridColumn: '1/-1',
+            px: 2,
+            py: 1,
+            borderBottom: `1px solid ${grey['400']}`,
+          }}
+        >
+          <div>
+            <div>{user.username}</div>
+            <div>{user.email}</div>
+          </div>
+
+          <IconButton>
+            <MoreVertIcon />
+          </IconButton>
+        </Box>
+
         <Messages messages={messagesProps.messages} userId={user.id} />
-        <MessageInput
-          currentMessage={messagesProps.currentMessage}
-          setCurrentMessage={messagesProps.setCurrentMessage}
-          sendMessage={messagesProps.sendMessage}
-        />
+
+        <Box sx={{ px: 2, py: 1, width: '100%' }}>
+          <MessageInput
+            currentMessage={messagesProps.currentMessage}
+            setCurrentMessage={messagesProps.setCurrentMessage}
+            sendMessage={messagesProps.sendMessage}
+          />
+        </Box>
       </Box>
     </Box>
   );

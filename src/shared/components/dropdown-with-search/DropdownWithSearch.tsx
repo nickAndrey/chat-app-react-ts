@@ -23,6 +23,8 @@ function DropdownWithSearch<T>({ dropdownProps, searchInputProps }: DropdownWith
       sx={{
         width: '200px',
         backgroundColor: '#142831',
+        borderRadius: '16px',
+        overflow: 'hidden',
         svg: { color: 'white' },
       }}
       size="small"

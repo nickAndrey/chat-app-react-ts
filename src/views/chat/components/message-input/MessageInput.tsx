@@ -44,8 +44,10 @@ const MessageInput: FC<MessageInputProps> = ({
   return (
     <TextField
       multiline
+      fullWidth
       aria-label="chat message input"
       ref={inputRef}
+      maxRows={5}
       placeholder="Write a message..."
       value={currentMessage}
       onKeyDown={onKeyDown}
