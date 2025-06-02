@@ -1,38 +1,42 @@
 import useAuthenticatedUser from '@/app/contexts/auth/useAuthenticatedUser';
 import { DropdownWithSearch } from '@/shared/components/dropdown-with-search';
+import { PopoverElement } from '@/shared/components/popover-element';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
-import { Box, IconButton } from '@mui/material';
+import { Box, IconButton, List, ListItemButton, ListItemText, Typography } from '@mui/material';
 import { grey } from '@mui/material/colors';
 import { type FC } from 'react';
+import { Virtuoso } from 'react-virtuoso';
 import { AvailableRooms } from './components/available-rooms';
+import { MessageCloud } from './components/message-cloud';
 import { MessageInput } from './components/message-input';
-import { Messages } from './components/messages';
 import useChat from './hooks/useChat';
 
 const CHAT_HEIGHT = '80vh';
 
 const Chat: FC = () => {
   const user = useAuthenticatedUser();
-
-  const { rooms, messagesProps, userSearchProps } = useChat({ user });
+  const { rooms, activeRoom, roomActions, messagesProps, userSearchProps } = useChat({ user });
 
   return (
     <Box
       sx={{
+        width: '100%',
+        height: CHAT_HEIGHT,
         display: 'grid',
         gridTemplateColumns: 'auto 1fr',
-        height: CHAT_HEIGHT,
-        width: '100%',
         borderRadius: '16px',
+        overflow: 'hidden',
+        bgcolor: 'white',
       }}
     >
+      {/* Rooms */}
       <Box
         component="aside"
         sx={{
           display: 'grid',
           gridTemplateRows: 'auto 1fr',
           maxHeight: CHAT_HEIGHT,
-          backgroundColor: '#283e4a',
+          bgcolor: '#283e4a',
           px: 2,
           pt: 4,
         }}
@@ -58,14 +62,16 @@ const Chat: FC = () => {
         <AvailableRooms rooms={rooms} />
       </Box>
 
+      {/* Chat Body */}
       <Box
         sx={{
-          bgcolor: 'white',
           display: 'grid',
           gridTemplateRows: 'auto 1fr auto',
+          gridTemplateColumns: '1fr auto',
           maxHeight: CHAT_HEIGHT,
         }}
       >
+        {/* Chat Header */}
         <Box
           sx={{
             display: 'flex',
@@ -77,20 +83,70 @@ const Chat: FC = () => {
             borderBottom: `1px solid ${grey['400']}`,
           }}
         >
-          <div>
-            <div>{user.username}</div>
-            <div>{user.email}</div>
-          </div>
+          {activeRoom && (
+            <div>
+              <Typography variant="h6">
+                {activeRoom.members.filter((item) => item.id !== user.id)[0].username}
+              </Typography>
+              <Typography variant="caption">
+                {activeRoom.members.filter((item) => item.id !== user.id)[0].email}
+              </Typography>
+            </div>
+          )}
 
-          <IconButton>
-            <MoreVertIcon />
-          </IconButton>
+          <PopoverElement
+            id="rooms-actions"
+            triggerRenderer={({ handleClick }) => (
+              <IconButton onClick={handleClick} disabled={!activeRoom} sx={{ ml: 'auto' }}>
+                <MoreVertIcon />
+              </IconButton>
+            )}
+          >
+            <Box
+              sx={{
+                display: 'flex',
+                flexDirection: 'column',
+              }}
+            >
+              <List component="nav">
+                {/* <ListItemButton onClick={() => roomActions.clearRoomHistory(activeRoom?.id)}>
+                  <ListItemText
+                    primary={<Typography variant="body2">Clear Room History</Typography>}
+                  />
+                </ListItemButton> */}
+
+                <ListItemButton
+                  onClick={() => {
+                    roomActions.handleDeleteRoom(user.id, activeRoom?.id);
+                  }}
+                >
+                  <ListItemText primary={<Typography variant="body2">Delete Room</Typography>} />
+                </ListItemButton>
+              </List>
+            </Box>
+          </PopoverElement>
         </Box>
 
-        <Messages messages={messagesProps.messages} userId={user.id} />
+        {/* Messages */}
+        <Box sx={{ px: 2, py: 2 }}>
+          <Virtuoso
+            data={messagesProps.messages}
+            itemContent={(_, message) => (
+              <MessageCloud
+                key={message.id}
+                message={message.content}
+                isCurrentUserSender={message.senderId === user.id}
+                sx={{ mb: 1 }}
+              />
+            )}
+            followOutput="smooth"
+          />
+        </Box>
 
-        <Box sx={{ px: 2, py: 1, width: '100%' }}>
+        {/* Message input */}
+        <Box sx={{ px: 2, py: 1, gridColumn: '1/-1' }}>
           <MessageInput
+            disabled={!activeRoom}
             currentMessage={messagesProps.currentMessage}
             setCurrentMessage={messagesProps.setCurrentMessage}
             sendMessage={messagesProps.sendMessage}

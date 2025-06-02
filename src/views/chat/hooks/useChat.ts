@@ -1,42 +1,37 @@
 import type { PublicUser } from '@/shared/types/user';
-import { useLocation } from 'react-router';
 import useMessages from './useMessages';
 import useRooms from './useRooms';
 import useUserSearch from './useUserSearch';
-
-const getActiveRoomId = (pathname: string) => {
-  const parts = pathname.split('/');
-  const roomId = parts[parts.length - 1];
-
-  return roomId;
-};
 
 type Args = {
   user: PublicUser;
 };
 
 const useChat = ({ user }: Args) => {
-  const location = useLocation();
-  const activeRoomId = getActiveRoomId(location.pathname);
+  const { usersList, searchValue, selectedUser, setSelectedUser, setSearchValue } = useUserSearch();
 
-  const { rooms, onRoomCreate } = useRooms({ user });
+  const { rooms, activeRoom, handleCreateRoom, handleDeleteRoom } = useRooms({ user });
+
   const { messages, currentMessage, setCurrentMessage, sendMessage } = useMessages({
     user,
-    activeRoomId,
+    activeRoomId: activeRoom?.id,
   });
-  const { usersList, searchValue, selectedUser, setSelectedUser, setSearchValue } = useUserSearch();
 
   // connect search and rooms creation flows
   const handleRoomCreate = (selectedUser: PublicUser | null) => {
     setSelectedUser(selectedUser);
 
     if (selectedUser) {
-      onRoomCreate(user, selectedUser);
+      handleCreateRoom(user, selectedUser);
     }
   };
 
   return {
     rooms,
+    activeRoom,
+    roomActions: {
+      handleDeleteRoom,
+    },
     messagesProps: {
       messages,
       currentMessage,

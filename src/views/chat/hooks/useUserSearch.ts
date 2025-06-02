@@ -1,4 +1,4 @@
-import { usersSearch } from '@/shared/services/users-search';
+import { findUser } from '@/shared/services/find-user';
 import type { PublicUser } from '@/shared/types/user';
 import { handleError } from '@/shared/utils/handle-error';
 import { useDebounce } from '@uidotdev/usehooks';
@@ -18,7 +18,7 @@ const useUserSearch = () => {
       if (searchValueDebounced === null) return;
 
       try {
-        const users = await usersSearch({
+        const users = await findUser({
           searchValue: searchValueDebounced,
           options: { signal: controller.signal },
         });

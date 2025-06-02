@@ -1,9 +1,19 @@
-import { roomCreate } from '@/shared/services/room-create';
-import { roomsGetAllByUser } from '@/shared/services/rooms-get-all-by-user';
+import { createRoom } from '@/shared/services/create-room';
+import { deleteRoom } from '@/shared/services/delete-room';
+import { getRooms } from '@/shared/services/get-rooms';
+
 import type { Room } from '@/shared/types/room';
 import type { PublicUser } from '@/shared/types/user';
 import { handleError } from '@/shared/utils/handle-error';
 import { useEffect, useState } from 'react';
+import { useLocation } from 'react-router';
+
+const getActiveRoomId = (pathname: string) => {
+  const parts = pathname.split('/');
+  const roomId = parts[parts.length - 1];
+
+  return roomId;
+};
 
 type Args = {
   user: PublicUser;
@@ -12,30 +22,35 @@ type Args = {
 const useRooms = ({ user }: Args) => {
   const [rooms, setRooms] = useState<Room[]>([]);
 
+  const location = useLocation();
+  const activeRoomId = getActiveRoomId(location.pathname);
+  const activeRoom = rooms.find((room) => room.id === activeRoomId);
+
   useEffect(() => {
     const controller = new AbortController();
 
-    const onGetAllRooms = async () => {
+    const fetchRooms = async () => {
       try {
-        const roomsAPI = await roomsGetAllByUser({
-          userID: user.id,
+        const roomsAPI = await getRooms({
+          userId: user.id,
           options: { signal: controller.signal },
         });
+
         setRooms(roomsAPI);
       } catch (error) {
         const { message } = handleError(error);
-        console.log(message);
+        console.error(message);
       }
     };
 
-    onGetAllRooms();
+    fetchRooms();
 
     return () => {
       controller.abort();
     };
   }, [user]);
 
-  const onRoomCreate = async (user: PublicUser, selectedUser: PublicUser) => {
+  const handleCreateRoom = async (user: PublicUser, selectedUser: PublicUser) => {
     let members: PublicUser[] = [];
 
     if (user && selectedUser) {
@@ -43,17 +58,31 @@ const useRooms = ({ user }: Args) => {
     }
 
     try {
-      const newRoom = await roomCreate({ members });
+      const newRoom = await createRoom({ members });
       setRooms((prev) => [...prev, newRoom]);
     } catch (error) {
       const { message } = handleError(error);
-      console.log(message);
+      console.error(message);
+    }
+  };
+
+  const handleDeleteRoom = async (memberId: string, roomId?: string) => {
+    if (!roomId) return;
+
+    try {
+      await deleteRoom({ roomId, memberId });
+    } catch (error) {
+      const { message } = handleError(error);
+      console.error(message);
     }
   };
 
   return {
     rooms,
-    onRoomCreate,
+    activeRoom,
+    handleCreateRoom,
+    handleDeleteRoom,
+    clearRoomHistory: () => {},
   };
 };
 

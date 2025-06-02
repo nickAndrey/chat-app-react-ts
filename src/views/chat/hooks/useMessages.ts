@@ -1,14 +1,16 @@
 import { socket } from '@/app/services/socket';
-import { messagesCreate } from '@/shared/services/messages-create';
-import { roomsGetAllMessagesById } from '@/shared/services/rooms-get-all-messages-by-id';
+import { createMessage } from '@/shared/services/create-message';
+import { getMessages } from '@/shared/services/get-messages';
+
 import type { Message } from '@/shared/types/message';
 import type { PublicUser } from '@/shared/types/user';
+import { createError } from '@/shared/utils/create-error';
 import { handleError } from '@/shared/utils/handle-error';
 import { useEffect, useState } from 'react';
 
 type Args = {
   user: PublicUser;
-  activeRoomId: string;
+  activeRoomId?: string;
 };
 
 const useMessages = ({ user, activeRoomId }: Args) => {
@@ -19,10 +21,11 @@ const useMessages = ({ user, activeRoomId }: Args) => {
   useEffect(() => {
     const controller = new AbortController();
 
-    async function fetchMessages() {
+    async function fetchMessages(roomId: string) {
       try {
-        const response = await roomsGetAllMessagesById({
-          roomId: activeRoomId,
+        const response = await getMessages({
+          roomId,
+          userId: user.id,
           options: { signal: controller.signal },
         });
         setMessages(response);
@@ -33,13 +36,13 @@ const useMessages = ({ user, activeRoomId }: Args) => {
     }
 
     if (activeRoomId) {
-      fetchMessages();
+      fetchMessages(activeRoomId);
     }
 
     return () => {
       controller.abort();
     };
-  }, [activeRoomId]);
+  }, [activeRoomId, user.id]);
 
   // Connect to the socket to receive messages in real time
   useEffect(() => {
@@ -59,7 +62,9 @@ const useMessages = ({ user, activeRoomId }: Args) => {
 
   const sendMessage = async (msg: string) => {
     try {
-      await messagesCreate({
+      if (!activeRoomId) throw createError('Field missed: activeRoomId');
+
+      await createMessage({
         roomId: activeRoomId,
         content: msg,
         senderId: user.id,
@@ -70,11 +75,16 @@ const useMessages = ({ user, activeRoomId }: Args) => {
     }
   };
 
+  const resetMessagesState = () => {
+    setMessages([]);
+  };
+
   return {
     messages,
     currentMessage,
     setCurrentMessage,
     sendMessage,
+    resetMessagesState,
   };
 };
 

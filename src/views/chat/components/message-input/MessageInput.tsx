@@ -3,12 +3,14 @@ import { useEffect, useRef, type ChangeEvent, type FC, type KeyboardEvent } from
 
 type MessageInputProps = {
   currentMessage: string;
+  disabled?: boolean;
   setCurrentMessage: (msg: string) => void;
   sendMessage: (msg: string) => void;
 };
 
 const MessageInput: FC<MessageInputProps> = ({
   currentMessage,
+  disabled,
   setCurrentMessage,
   sendMessage,
 }) => {
@@ -45,6 +47,7 @@ const MessageInput: FC<MessageInputProps> = ({
     <TextField
       multiline
       fullWidth
+      disabled={disabled}
       aria-label="chat message input"
       ref={inputRef}
       maxRows={5}
