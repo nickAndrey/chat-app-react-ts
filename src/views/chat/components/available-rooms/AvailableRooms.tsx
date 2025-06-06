@@ -1,23 +1,14 @@
 import type { Room } from '@/shared/types/room';
-import { List, ListItemButton, ListItemText } from '@mui/material';
+import { List, ListItemButton, ListItemText, Typography } from '@mui/material';
 import { blueGrey } from '@mui/material/colors';
-import { useEffect, type FC } from 'react';
-import { NavLink, useNavigate } from 'react-router';
+import { type FC } from 'react';
+import { NavLink } from 'react-router';
 
 type AvailableRoomsProps = {
   rooms: Room[];
 };
 
 const AvailableRooms: FC<AvailableRoomsProps> = ({ rooms }) => {
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    // sort by date updated and redirect
-    if (rooms.length > 0) {
-      navigate(`/${rooms[rooms.length - 1].id}`);
-    }
-  }, [navigate, rooms]);
-
   return (
     <List
       component="nav"
@@ -54,7 +45,10 @@ const AvailableRooms: FC<AvailableRoomsProps> = ({ rooms }) => {
           }}
           {...{ to: `/${room.id}` }}
         >
-          <ListItemText primary={room.name} />
+          <ListItemText
+            primary={room.name}
+            secondary={<Typography variant="caption">{room.lastMessage}</Typography>}
+          />
         </ListItemButton>
       ))}
     </List>

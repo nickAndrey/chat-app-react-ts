@@ -15,6 +15,7 @@ export type Room = {
   isGroup: boolean;
   members: PublicUser[];
   createdBy: PublicUser;
+  lastMessage?: string;
   createdAt?: string;
   updatedAt?: string;
   id: string;

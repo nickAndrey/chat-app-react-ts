@@ -12,12 +12,20 @@ const useChat = ({ user }: Args) => {
 
   const { rooms, activeRoom, handleCreateRoom, handleDeleteRoom } = useRooms({ user });
 
-  const { messages, currentMessage, setCurrentMessage, sendMessage } = useMessages({
-    user,
-    activeRoomId: activeRoom?.id,
-  });
+  const {
+    messages,
+    currentMessage,
+    setCurrentMessage,
+    handleCreateMessage,
+    handleUpdateMessage,
+    handleDeleteMessage,
+  } = useMessages({ user, activeRoomId: activeRoom?.id });
 
-  // connect search and rooms creation flows
+  /**
+   * #### Compound actions:
+   * 1. Set state for selected user in the search dropdown
+   * 2. Create a new room or reattach selected user to the room he left previously (will have history back)
+   **/
   const handleRoomCreate = (selectedUser: PublicUser | null) => {
     setSelectedUser(selectedUser);
 
@@ -31,19 +39,21 @@ const useChat = ({ user }: Args) => {
     activeRoom,
     roomActions: {
       handleDeleteRoom,
+      handleRoomCreate,
     },
     messagesProps: {
       messages,
       currentMessage,
       setCurrentMessage,
-      sendMessage,
+      handleCreateMessage,
+      handleUpdateMessage,
+      handleDeleteMessage,
     },
     userSearchProps: {
       usersList,
       searchValue,
       selectedUser,
       setSearchValue,
-      handleRoomCreate,
     },
   };
 };

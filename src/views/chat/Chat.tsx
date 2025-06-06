@@ -1,12 +1,22 @@
 import useAuthenticatedUser from '@/app/contexts/auth/useAuthenticatedUser';
 import { DropdownWithSearch } from '@/shared/components/dropdown-with-search';
 import { PopoverElement } from '@/shared/components/popover-element';
+
 import MoreVertIcon from '@mui/icons-material/MoreVert';
-import { Box, IconButton, List, ListItemButton, ListItemText, Typography } from '@mui/material';
+import {
+  Box,
+  IconButton,
+  List,
+  ListItemButton,
+  ListItemText,
+  Paper,
+  Typography,
+} from '@mui/material';
 import { grey } from '@mui/material/colors';
 import { type FC } from 'react';
 import { Virtuoso } from 'react-virtuoso';
 import { AvailableRooms } from './components/available-rooms';
+import { MessageActions } from './components/message-actions';
 import { MessageCloud } from './components/message-cloud';
 import { MessageInput } from './components/message-input';
 import useChat from './hooks/useChat';
@@ -18,7 +28,8 @@ const Chat: FC = () => {
   const { rooms, activeRoom, roomActions, messagesProps, userSearchProps } = useChat({ user });
 
   return (
-    <Box
+    <Paper
+      elevation={2}
       sx={{
         width: '100%',
         height: CHAT_HEIGHT,
@@ -49,7 +60,7 @@ const Chat: FC = () => {
           dropdownProps={{
             items: userSearchProps.usersList,
             selectedItem: userSearchProps.selectedUser,
-            onSelectItem: userSearchProps.handleRoomCreate,
+            onSelectItem: roomActions.handleRoomCreate,
             renderOption: (item) => (
               <div>
                 <h4>{item.username}</h4>
@@ -109,12 +120,6 @@ const Chat: FC = () => {
               }}
             >
               <List component="nav">
-                {/* <ListItemButton onClick={() => roomActions.clearRoomHistory(activeRoom?.id)}>
-                  <ListItemText
-                    primary={<Typography variant="body2">Clear Room History</Typography>}
-                  />
-                </ListItemButton> */}
-
                 <ListItemButton
                   onClick={() => {
                     roomActions.handleDeleteRoom(user.id, activeRoom?.id);
@@ -128,18 +133,51 @@ const Chat: FC = () => {
         </Box>
 
         {/* Messages */}
+
         <Box sx={{ px: 2, py: 2 }}>
           <Virtuoso
             data={messagesProps.messages}
             itemContent={(_, message) => (
-              <MessageCloud
+              <PopoverElement
                 key={message.id}
-                message={message.content}
-                isCurrentUserSender={message.senderId === user.id}
-                sx={{ mb: 1 }}
-              />
+                anchorOrigin={{
+                  vertical: 'top',
+                  horizontal: 'center',
+                }}
+                transformOrigin={{
+                  vertical: 'bottom',
+                  horizontal: 'center',
+                }}
+                triggerRenderer={({ handleClick }) => (
+                  <MessageCloud
+                    message={message.content}
+                    updatedAt={message.updatedAt}
+                    isCurrentUserSender={message.senderId === user.id}
+                    sx={{ mb: 1 }}
+                    onClick={handleClick}
+                  />
+                )}
+              >
+                <MessageActions
+                  handleEdit={() =>
+                    messagesProps.handleUpdateMessage({
+                      roomId: message.roomId,
+                      messageId: message.id,
+                      content: '',
+                    })
+                  }
+                  handleDelete={() =>
+                    messagesProps.handleDeleteMessage({
+                      roomId: message.roomId,
+                      memberId: user.id,
+                      messageId: message.id,
+                    })
+                  }
+                />
+              </PopoverElement>
             )}
             followOutput="smooth"
+            style={{ height: '100%' }}
           />
         </Box>
 
@@ -149,11 +187,17 @@ const Chat: FC = () => {
             disabled={!activeRoom}
             currentMessage={messagesProps.currentMessage}
             setCurrentMessage={messagesProps.setCurrentMessage}
-            sendMessage={messagesProps.sendMessage}
+            sendMessage={(message) =>
+              messagesProps.handleCreateMessage({
+                roomId: activeRoom?.id,
+                senderId: user.id,
+                content: message,
+              })
+            }
           />
         </Box>
       </Box>
-    </Box>
+    </Paper>
   );
 };
 

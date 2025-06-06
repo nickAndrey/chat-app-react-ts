@@ -1,20 +1,28 @@
-import Popover from '@mui/material/Popover';
+import Popover, { type PopoverOrigin } from '@mui/material/Popover';
 import { useState, type FC, type MouseEvent, type ReactNode } from 'react';
 
 type PopoverElementProps = {
   children: ReactNode;
   id?: string;
+  anchorOrigin?: PopoverOrigin;
+  transformOrigin?: PopoverOrigin;
   triggerRenderer: ({
     handleClick,
   }: {
-    handleClick: (e: MouseEvent<HTMLButtonElement>) => void;
+    handleClick: (e: MouseEvent<HTMLElement>) => void;
   }) => ReactNode;
 };
 
-const PopoverElement: FC<PopoverElementProps> = ({ children, id, triggerRenderer }) => {
-  const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
+const PopoverElement: FC<PopoverElementProps> = ({
+  children,
+  id,
+  anchorOrigin,
+  transformOrigin,
+  triggerRenderer,
+}) => {
+  const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
 
-  const handleClick = (e: MouseEvent<HTMLButtonElement>) => setAnchorEl(e.currentTarget);
+  const handleClick = (e: MouseEvent<HTMLElement>) => setAnchorEl(e.currentTarget);
   const handleClose = () => setAnchorEl(null);
 
   const open = Boolean(anchorEl);
@@ -32,10 +40,12 @@ const PopoverElement: FC<PopoverElementProps> = ({ children, id, triggerRenderer
         anchorOrigin={{
           vertical: 'bottom',
           horizontal: 'right',
+          ...anchorOrigin,
         }}
         transformOrigin={{
           vertical: 'top',
           horizontal: 'right',
+          ...transformOrigin,
         }}
       >
         {children}

@@ -6,7 +6,7 @@ import type { Room } from '@/shared/types/room';
 import type { PublicUser } from '@/shared/types/user';
 import { handleError } from '@/shared/utils/handle-error';
 import { useEffect, useState } from 'react';
-import { useLocation } from 'react-router';
+import { useLocation, useNavigate } from 'react-router';
 
 const getActiveRoomId = (pathname: string) => {
   const parts = pathname.split('/');
@@ -22,6 +22,7 @@ type Args = {
 const useRooms = ({ user }: Args) => {
   const [rooms, setRooms] = useState<Room[]>([]);
 
+  const navigate = useNavigate();
   const location = useLocation();
   const activeRoomId = getActiveRoomId(location.pathname);
   const activeRoom = rooms.find((room) => room.id === activeRoomId);
@@ -36,7 +37,13 @@ const useRooms = ({ user }: Args) => {
           options: { signal: controller.signal },
         });
 
-        setRooms(roomsAPI);
+        const sortedRooms = roomsAPI.sort((a, b) => {
+          const dateA = new Date(a.updatedAt ?? 0).getTime();
+          const dateB = new Date(b.updatedAt ?? 0).getTime();
+          return dateB - dateA;
+        });
+
+        setRooms(sortedRooms);
       } catch (error) {
         const { message } = handleError(error);
         console.error(message);
@@ -49,6 +56,12 @@ const useRooms = ({ user }: Args) => {
       controller.abort();
     };
   }, [user]);
+
+  useEffect(() => {
+    if (!activeRoomId && rooms.length > 0) {
+      navigate(`/${rooms[0].id}`);
+    }
+  }, [activeRoomId, navigate, rooms]);
 
   const handleCreateRoom = async (user: PublicUser, selectedUser: PublicUser) => {
     let members: PublicUser[] = [];
@@ -66,11 +79,14 @@ const useRooms = ({ user }: Args) => {
     }
   };
 
-  const handleDeleteRoom = async (memberId: string, roomId?: string) => {
+  const handleDeleteRoom = async (memberId: string, roomId?: string, callback?: () => void) => {
     if (!roomId) return;
 
     try {
       await deleteRoom({ roomId, memberId });
+      setRooms((prev) => prev.filter((item) => item.id !== roomId));
+      navigate('/');
+      callback?.();
     } catch (error) {
       const { message } = handleError(error);
       console.error(message);

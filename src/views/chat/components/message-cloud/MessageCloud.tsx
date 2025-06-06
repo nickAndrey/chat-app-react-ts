@@ -1,20 +1,38 @@
 import { Box, Typography, type SxProps } from '@mui/material';
 import { blue, blueGrey, grey } from '@mui/material/colors';
-import { type FC } from 'react';
+import { type FC, type MouseEvent } from 'react';
 
 type MessageCloudProps = {
   message: string;
+  updatedAt?: string;
   isCurrentUserSender: boolean;
   sx?: SxProps;
+  onClick?: (e: MouseEvent<HTMLElement>) => void;
 };
 
-const MessageCloud: FC<MessageCloudProps> = ({ message, isCurrentUserSender, sx }) => {
+const MessageCloud: FC<MessageCloudProps> = ({
+  message,
+  updatedAt,
+  isCurrentUserSender,
+  sx,
+  onClick,
+}) => {
   const arrowDirection = isCurrentUserSender ? 'right' : 'left';
   const bgcolor = isCurrentUserSender ? blue['100'] : blueGrey['600'];
 
+  const date = new Date(updatedAt || '');
+  const time = date.toLocaleTimeString('en-GB', {
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false, // 24-hour format
+  });
+
   return (
     <Box
+      onClick={onClick}
       sx={{
+        display: 'flex',
+        gap: 2,
         px: 1,
         py: 0.7,
         bgcolor,
@@ -32,6 +50,7 @@ const MessageCloud: FC<MessageCloudProps> = ({ message, isCurrentUserSender, sx 
       }}
     >
       <Typography variant="body2">{message}</Typography>
+      <Typography variant="caption">{time}</Typography>
 
       <Box
         sx={{
